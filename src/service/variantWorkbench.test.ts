@@ -1,0 +1,223 @@
+import { NoAclError, NoOccurrenceError } from './errors';
+import { FhirError, KeycloakFhirError } from './fhir/errors';
+import { fetchFhirUri } from './fhir/fhirClient';
+import { fetchFhirToken } from './fhir/fhirKeycloakClient';
+import { FhirEntry } from './fhir/types';
+import { startBulkImport } from './keyManager/cavatica/cavaticaProxyClient';
+import { CavaticaError } from './keyManager/cavatica/errors';
+import { BulkImportResponse } from './keyManager/cavatica/types';
+import { KeyManagerError } from './keyManager/errors';
+import { getUserACLs } from './keyManager/keyManagerClient';
+import { loadOccurrencesToCavatica } from './variantWorkbench';
+
+jest.mock('./keyManager/keyManagerClient');
+jest.mock('./fhir/fhirKeycloakClient');
+jest.mock('./fhir/fhirClient');
+jest.mock('./keyManager/cavatica/cavaticaProxyClient');
+
+describe('Variant Workbench Service', () => {
+    describe('Load occurrences to Cavatica', () => {
+        const accessToken = 'access_token';
+        const fhirAccessToken = 'fhir_access_token';
+        const cavaticaProject = 'cavatica_project';
+        const acls = ['acl1', 'acl2'];
+
+        const fhirEntry1: FhirEntry = {
+            resource: {
+                content: [
+                    {
+                        attachment: {
+                            url: 'drs://data.kidsfirstdrc.org/drs_url_1',
+                            title: 'file1.parquet',
+                        },
+                    },
+                    {
+                        attachment: {
+                            // eslint-disable-next-line max-len
+                            url: 's3://occurrences_bucket/release_id=re_20240101_1/study_id=SD_0TYVY1TW/dbgap_consent_code=phs002161.c1/family_id=FM_0A0A0AAA/sample_id=BS_A0A0AAAA/file1.parquet',
+                        },
+                    },
+                ],
+            },
+        } as FhirEntry;
+        const fhirEntry2: FhirEntry = {
+            resource: {
+                content: [
+                    {
+                        attachment: {
+                            url: 'drs://data.kidsfirstdrc.org/drs_url_2',
+                            title: 'file2.parquet',
+                        },
+                    },
+                    {
+                        attachment: {
+                            // eslint-disable-next-line max-len
+                            url: 's3://occurrences_bucket/release_id=re_20240101_1/study_id=SD_0TYVY1TW/dbgap_consent_code=phs002161.c1/family_id=FM_0A0A0AAA/sample_id=BS_B1B1BBBB/file2.parquet',
+                        },
+                    },
+                ],
+            },
+        } as FhirEntry;
+        const fhirEntry3: FhirEntry = {
+            resource: {
+                content: [
+                    {
+                        attachment: {
+                            url: 'drs://data.kidsfirstdrc.org/drs_url_3',
+                            title: 'file3.parquet',
+                        },
+                    },
+                    {
+                        attachment: {
+                            // eslint-disable-next-line max-len
+                            url: 's3://occurrences_bucket/release_id=re_20240101_1/study_id=SD_0TYVY1TW/dbgap_consent_code=phs002161.c1/family_id=FM_0A0A0AAA/sample_id=BS_C3C3CCCC/file3.parquet',
+                        },
+                    },
+                ],
+            },
+        } as FhirEntry;
+
+        const bulkImportResult: BulkImportResponse = {
+            href: 'https://cavatica-api.sbgenomics.com/v2/bulk/drs/imports/243039088206221312',
+            id: '243039088206221312',
+            result: [],
+            state: 'SUBMITTED',
+        };
+
+        beforeEach(() => {
+            (getUserACLs as jest.Mock).mockReset();
+            (fetchFhirToken as jest.Mock).mockReset();
+            (fetchFhirUri as jest.Mock).mockReset();
+            (startBulkImport as jest.Mock).mockReset();
+        });
+
+        it('should return an error if it fails to get user ACLs', async () => {
+            const getAclError = new KeyManagerError(400, 'OOPS from Key Manager');
+
+            (getUserACLs as jest.Mock).mockRejectedValue(getAclError);
+
+            try {
+                await loadOccurrencesToCavatica(accessToken, cavaticaProject);
+            } catch (e) {
+                expect(e).toEqual(getAclError);
+            } finally {
+                expect((getUserACLs as jest.Mock).mock.calls.length).toEqual(1);
+                expect((fetchFhirToken as jest.Mock).mock.calls.length).toEqual(0);
+                expect((fetchFhirUri as jest.Mock).mock.calls.length).toEqual(0);
+                expect((startBulkImport as jest.Mock).mock.calls.length).toEqual(0);
+            }
+        });
+
+        it('should return an error if the user does not have any ACL', async () => {
+            const expectedError = new NoAclError();
+
+            (getUserACLs as jest.Mock).mockResolvedValue([]);
+
+            try {
+                await loadOccurrencesToCavatica(accessToken, cavaticaProject);
+            } catch (e) {
+                expect(e).toEqual(expectedError);
+            } finally {
+                expect((getUserACLs as jest.Mock).mock.calls.length).toEqual(1);
+                expect((fetchFhirToken as jest.Mock).mock.calls.length).toEqual(0);
+                expect((fetchFhirUri as jest.Mock).mock.calls.length).toEqual(0);
+                expect((startBulkImport as jest.Mock).mock.calls.length).toEqual(0);
+            }
+        });
+
+        it('should return an error if it fails to get a token from FHIR keycloak', async () => {
+            const errorMessage = 'OOPS from FHIR Keycloak';
+            const expectedError = new KeycloakFhirError(400, errorMessage);
+
+            (getUserACLs as jest.Mock).mockResolvedValue(acls);
+            (fetchFhirToken as jest.Mock).mockRejectedValue(expectedError);
+
+            try {
+                await loadOccurrencesToCavatica(accessToken, cavaticaProject);
+            } catch (e) {
+                expect(e).toEqual(expectedError);
+            } finally {
+                expect((getUserACLs as jest.Mock).mock.calls.length).toEqual(1);
+                expect((fetchFhirToken as jest.Mock).mock.calls.length).toEqual(1);
+                expect((fetchFhirUri as jest.Mock).mock.calls.length).toEqual(0);
+                expect((startBulkImport as jest.Mock).mock.calls.length).toEqual(0);
+            }
+        });
+
+        it('should return an error if it fails to get FHIR document references for ACLs', async () => {
+            const errorMessage = 'OOPS from FHIR';
+            const expectedError = new FhirError(400, errorMessage);
+
+            (getUserACLs as jest.Mock).mockResolvedValue(acls);
+            (fetchFhirToken as jest.Mock).mockResolvedValue(fhirAccessToken);
+            (fetchFhirUri as jest.Mock).mockRejectedValue(expectedError);
+
+            try {
+                await loadOccurrencesToCavatica(accessToken, cavaticaProject);
+            } catch (e) {
+                expect(e).toEqual(expectedError);
+            } finally {
+                expect((getUserACLs as jest.Mock).mock.calls.length).toEqual(1);
+                expect((fetchFhirToken as jest.Mock).mock.calls.length).toEqual(1);
+                expect((fetchFhirUri as jest.Mock).mock.calls.length).toEqual(2);
+                expect((startBulkImport as jest.Mock).mock.calls.length).toEqual(0);
+            }
+        });
+
+        it('should return an error if there is no document reference for user ACLs', async () => {
+            const expectedError = new NoOccurrenceError();
+
+            (getUserACLs as jest.Mock).mockResolvedValue(acls);
+            (fetchFhirToken as jest.Mock).mockResolvedValue(fhirAccessToken);
+            (fetchFhirUri as jest.Mock).mockResolvedValue([]);
+
+            try {
+                await loadOccurrencesToCavatica(accessToken, cavaticaProject);
+            } catch (e) {
+                expect(e).toEqual(expectedError);
+            } finally {
+                expect((getUserACLs as jest.Mock).mock.calls.length).toEqual(1);
+                expect((fetchFhirToken as jest.Mock).mock.calls.length).toEqual(1);
+                expect((fetchFhirUri as jest.Mock).mock.calls.length).toEqual(2);
+                expect((startBulkImport as jest.Mock).mock.calls.length).toEqual(0);
+            }
+        });
+
+        it('should return an error if it fails to post Cavatica bulk import', async () => {
+            const errorMessage = 'OOPS from Cavatica Proxy';
+            const expectedError = new CavaticaError(400, errorMessage);
+
+            (getUserACLs as jest.Mock).mockResolvedValue(acls);
+            (fetchFhirToken as jest.Mock).mockResolvedValue(fhirAccessToken);
+            (fetchFhirUri as jest.Mock).mockResolvedValue([fhirEntry1, fhirEntry2, fhirEntry3]);
+            (startBulkImport as jest.Mock).mockRejectedValue(expectedError);
+
+            try {
+                await loadOccurrencesToCavatica(accessToken, cavaticaProject);
+            } catch (e) {
+                expect(e).toEqual(expectedError);
+            } finally {
+                expect((getUserACLs as jest.Mock).mock.calls.length).toEqual(1);
+                expect((fetchFhirToken as jest.Mock).mock.calls.length).toEqual(1);
+                expect((fetchFhirUri as jest.Mock).mock.calls.length).toEqual(2);
+                expect((startBulkImport as jest.Mock).mock.calls.length).toEqual(1);
+            }
+        });
+
+        it('should return Cavatica bulk import response if process is successful', async () => {
+            (getUserACLs as jest.Mock).mockResolvedValue(acls);
+            (fetchFhirToken as jest.Mock).mockResolvedValue(fhirAccessToken);
+            (fetchFhirUri as jest.Mock).mockResolvedValue([fhirEntry1, fhirEntry2, fhirEntry3]);
+            (startBulkImport as jest.Mock).mockResolvedValue(bulkImportResult);
+
+            const result = await loadOccurrencesToCavatica(accessToken, cavaticaProject);
+
+            expect(result).toEqual(bulkImportResult);
+
+            expect((getUserACLs as jest.Mock).mock.calls.length).toEqual(1);
+            expect((fetchFhirToken as jest.Mock).mock.calls.length).toEqual(1);
+            expect((fetchFhirUri as jest.Mock).mock.calls.length).toEqual(2);
+            expect((startBulkImport as jest.Mock).mock.calls.length).toEqual(1);
+        });
+    });
+});

@@ -1,0 +1,12 @@
+node_modules
+.git
+.idea
+.github
+*.md
+dist
+LICENSE
+.eslintignore
+.eslintrc
+.prettierrc
+docker-compose.yml
+.vs-code

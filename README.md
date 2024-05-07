@@ -1,29 +1,104 @@
 <p align="center">
   <img src="docs/kids_first_logo.svg" alt="Kids First repository logo" width="660px" />
 </p>
-<p align="center">
-  <a href="https://github.com/kids-first/kf-template-repo/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kids-first/kf-template-repo.svg?style=for-the-badge"></a>
-</p>
 
-# Kids First Repository Template
+# Cavatica VWB API
 
-Use this template to bootstrap a new Kids First repository.
+## Requirements
 
-### Badges
+- Node >=18.18.0
+- NPM >=10.5.0
+- Docker
 
-Update the LICENSE badge to point to the new repo location on GitHub.
-Note that the LICENSE badge will fail to render correctly unless the repo has
-been set to **public**.
+## Developement
 
-Add additional badges for CI, docs, and other integrations as needed within the
-`<p>` tag next to the LICENSE.
+### Get Started
 
-### Repo Description
+Make sure to fill your `.env` file based on `.env.example`
 
-Update the repositories description with a short summary of the repository's
-intent.
-Include an appropriate emoji at the start of the summary.
+```
+npm install
+```
 
-Add a handful of tags that summarize topics relating to the repository.
-If the repo has a documentation site or webpage, add it next to the repository
-description.
+then 
+
+```
+npm run dev
+```
+
+### Run tests
+
+- Watch mode
+
+```
+npm run test
+```
+
+- With coverage
+
+```
+npm run test:coverage
+```
+
+### Build and run the Docker image
+
+```
+docker build -t kf-cavatica-vwb-api .
+```
+
+Then
+
+```
+docker run -p 1313:1313 -e PORT=1313 \
+-e KEYCLOAK_URL={KEYCLOAK_URL} \
+-e KEYCLOAK_REALM={KEYCLOAK_REALM} \
+-e KEYCLOAK_CLIENT={KEYCLOAK_CLIENT} \
+-e KEY_MANAGER_URL={KEY_MANAGER_URL} \
+-e FENCE_LIST="gen3|dcf" \
+-e FHIR_URL={FHIR_URL} \
+-e FHIR_KEYCLOAK_URL={FHIR_KEYCLOAK_URL} \
+-e FHIR_REALM={FHIR_REALM} \
+-e FHIR_CLIENT_ID={FHIR_CLIENT_ID} \
+-e FHIR_CLIENT_SECRET={FHIR_CLIENT_SECRET} \
+-it -d kf-cavatica-vwb-api
+```
+
+Do not forget to fill env values
+
+## API Documentation
+
+### VWB endpoint
+
+- GET `/status`
+
+Returns
+
+```
+{
+    "app": "kf-cavatica-vwb-api",
+    "version": "0.0.1",
+    "keycloak_url": {KEYCLOAK_URL},
+    "fhir_url": {FHIR_URL}
+}
+```
+
+- POST `/vwb`
+
+Requires body with Cavatica project name
+
+```
+{
+    "project": "username/project_name"
+}
+```
+
+Returns cavatica bulk import response
+
+```
+{
+    "href": "https://cavatica-api.sbgenomics.com/v2/bulk/drs/imports/243039088206221312",
+    "id": "243039088206221312",
+    "result": [],
+    "state": "SUBMITTED",
+}
+```
