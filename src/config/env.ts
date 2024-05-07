@@ -9,7 +9,7 @@ export const keycloakRealm = process.env.KEYCLOAK_REALM;
 export const keycloakClient = process.env.KEYCLOAK_CLIENT;
 
 export const keyManagerUrl = process.env.KEY_MANAGER_URL;
-export const fenceList: string[] = process.env.FENCE_LIST.split('|');
+export const fenceList: string[] = (process.env.FENCE_LIST || '').split('|');
 
 export const fhirUrl = process.env.FHIR_URL;
 export const fhirKeycloakUrl = process.env.FHIR_KEYCLOAK_URL;
