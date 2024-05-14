@@ -1,6 +1,6 @@
 {
     "name": "kf-cavatica-vwb-api",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "description": "RESTful API to push file to Cavatica for VWB",
     "main": "index.ts",
     "license": "ISC",
