@@ -61,6 +61,7 @@ docker run -p 1313:1313 \
 -e FHIR_KEYCLOAK_REALM={FHIR_KEYCLOAK_REALM} \
 -e FHIR_KEYCLOAK_CLIENT_ID={FHIR_KEYCLOAK_CLIENT_ID} \
 -e FHIR_KEYCLOAK_CLIENT_SECRET={FHIR_KEYCLOAK_CLIENT_SECRET} \
+-e MANIFEST_BUCKET={MANIFEST_BUCKET} \
 -it -d kf-cavatica-vwb-api
 ```
 
@@ -103,3 +104,7 @@ Returns cavatica bulk import response
     "state": "SUBMITTED",
 }
 ```
+
+- GET `/vwb/manifest`
+
+Returns a redirect to Cavatica DRS Manifest import

@@ -5,6 +5,7 @@ import { FhirEntry, FhirEntryContent } from './fhir/types';
 import { startBulkImport } from './keyManager/cavatica/cavaticaProxyClient';
 import { BulkImportItem, BulkImportResponse } from './keyManager/cavatica/types';
 import { getUserACLs } from './keyManager/keyManagerClient';
+import { generateManifest } from './S3/manifest';
 
 export const loadOccurrencesToCavatica = async (accessToken: string, project: string): Promise<BulkImportResponse> => {
     const acls = await getUserACLs(accessToken);
@@ -20,8 +21,25 @@ export const loadOccurrencesToCavatica = async (accessToken: string, project: st
     );
 
     const cavaticaBulkImportResult = await startBulkImport(accessToken, items);
-
     return cavaticaBulkImportResult;
+};
+
+export const generateManifestPreSignedUrl = async (keycloakId: string, accessToken: string): Promise<string> => {
+    const acls = await getUserACLs(accessToken);
+
+    if (acls.length === 0) throw new NoAclError();
+
+    const parquets: FhirEntry[] = await getDocumentReferenceForACLs(acls);
+
+    if (parquets.length === 0) throw new NoOccurrenceError();
+
+    const items: BulkImportItem[] = parquets.map((p) =>
+        mapFhirEntryContentsToCavaticaBulkImportItem(p.resource.content, ''),
+    );
+
+    const preSignedUrl = await generateManifest(keycloakId, items);
+
+    return preSignedUrl;
 };
 
 const getDocumentReferenceForACLs = async (acls: string[]): Promise<FhirEntry[]> => {

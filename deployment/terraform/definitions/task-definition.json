@@ -13,7 +13,8 @@
       { "name" : "FENCE_LIST", "value" : "${fence_list}" },
       { "name" : "FHIR_URL", "value" : "${fhir_url}" },
       { "name" : "FHIR_KEYCLOAK_URL", "value" : "${fhir_keycloak_url}" },
-      { "name" : "FHIR_KEYCLOAK_REALM", "value" : "${fhir_keycloak_realm}" }
+      { "name" : "FHIR_KEYCLOAK_REALM", "value" : "${fhir_keycloak_realm}" },
+      { "name" : "MANIFEST_BUCKET", "value" : "${manifest_bucket}" }
     ],
     "entryPoint": [
        "node"

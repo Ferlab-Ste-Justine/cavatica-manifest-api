@@ -16,3 +16,5 @@ export const fhirKeycloakUrl = process.env.FHIR_KEYCLOAK_URL;
 export const fhirKeycloakRealm = process.env.FHIR_KEYCLOAK_REALM;
 export const fhirKeycloakClientId = process.env.FHIR_KEYCLOAK_CLIENT_ID;
 export const fhirKeycloakClientSecret = process.env.FHIR_KEYCLOAK_CLIENT_SECRET;
+
+export const manifestBucket = process.env.MANIFEST_BUCKET;

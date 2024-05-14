@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { loadOccurrencesToCavatica } from '../service/variantWorkbench';
+import { generateManifestPreSignedUrl, loadOccurrencesToCavatica } from '../service/variantWorkbench';
 
 const variantWorkbenchRouter = Router();
 
@@ -15,6 +15,18 @@ variantWorkbenchRouter.post('/', async (req, res, next) => {
         const body: PostVwbBody = req.body;
         const cavaticaResult = await loadOccurrencesToCavatica(accessToken, body.project);
         res.status(StatusCodes.OK).send(cavaticaResult);
+    } catch (e) {
+        next(e);
+    }
+});
+
+variantWorkbenchRouter.get('/manifest', async (req, res, next) => {
+    try {
+        const accessToken = req.headers.authorization;
+        const keycloakId = req['kauth']?.grant?.access_token?.content?.sub;
+        const presignedUrl = await generateManifestPreSignedUrl(keycloakId, accessToken);
+        const redirectUrl = `https://cavatica.sbgenomics.com/import-redirect/drs/csv?URL=${presignedUrl}`;
+        res.redirect(StatusCodes.MOVED_TEMPORARILY, redirectUrl);
     } catch (e) {
         next(e);
     }

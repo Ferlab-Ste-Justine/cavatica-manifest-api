@@ -67,3 +67,8 @@ variable "fhir_keycloak_realm" {
   description = "FHIR Keycloak Realm"
   default = ""
 }
+
+variable "manifest_bucket" {
+  description = "Manifest Bucket"
+  default = ""
+}

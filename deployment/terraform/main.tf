@@ -27,6 +27,7 @@ data "template_file" "container_definition" {
     fhir_url            = var.fhir_url
     fhir_keycloak_url   = var.fhir_keycloak_url 
     fhir_keycloak_realm = var.fhir_keycloak_realm 
+    manifest_bucket     = var.manifest_bucket 
   }
 }
 
