@@ -1,7 +1,7 @@
 name: Deploy Infrastructure
 
-on: 
-  pull_request:
+on:
+  push:
     branches:
       - 'main'
   release:
@@ -27,7 +27,7 @@ jobs:
     needs: [build]
     name: Deploy QA Infrastructure
     runs-on:  kf-strides-linux-large
-    if: ${{ github.event_name == 'pull_request' }}
+    if: ${{ github.event_name == 'push' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
