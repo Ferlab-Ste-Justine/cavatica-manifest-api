@@ -36,7 +36,7 @@ data "aws_lb" "lb" {
 }
 
 module "app" {
-  source = "git@github.com:d3b-center/aws-ecs-service-module.git?ref=f893f47"
+  source = "git@github.com:d3b-center/aws-ecs-service-module.git?ref=2b84cb4"
   project                 = var.project
   environment             = var.environment
   organization            = var.organization
