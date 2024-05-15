@@ -22,6 +22,7 @@ data "template_file" "container_definition" {
     secret_name         = aws_secretsmanager_secret.secrets.id
     keycloak_url        = var.keycloak_url
     keycloak_realm      = var.keycloak_realm
+    mock_key_manager    = var.mock_key_manager
     key_manager_url     = var.key_manager_url
     fence_list          = var.fence_list
     fhir_url            = var.fhir_url
