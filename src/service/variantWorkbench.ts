@@ -1,3 +1,5 @@
+import { env, mockKeyManager } from '../config/env';
+import { ENV_QA } from '../utils/constants';
 import { NoAclError, NoOccurrenceError } from './errors';
 import { fetchFhirUri, getDocumentSearchUri } from './fhir/fhirClient';
 import { fetchFhirToken } from './fhir/fhirKeycloakClient';
@@ -25,7 +27,12 @@ export const loadOccurrencesToCavatica = async (accessToken: string, project: st
 };
 
 export const generateManifestPreSignedUrl = async (keycloakId: string, accessToken: string): Promise<string> => {
-    const acls = await getUserACLs(accessToken);
+    let acls = [];
+    if (mockKeyManager && env === ENV_QA) {
+        acls = ['phs002161.c1'];
+    } else {
+        acls = await getUserACLs(accessToken);
+    }
 
     if (acls.length === 0) throw new NoAclError();
 

@@ -7,8 +7,10 @@
     "essential": true,
     "environment" : [
       { "name" : "PORT", "value" : "${container_port}" },
+      { "name" : "ENV", "value" : "${environment}" },
       { "name" : "KEYCLOAK_URL", "value" : "${keycloak_url}" },
       { "name" : "KEYCLOAK_REALM", "value" : "${keycloak_realm}" },
+      { "name" : "MOCK_KEY_MANAGER", "value" : "${mock_key_manager}" },
       { "name" : "KEY_MANAGER_URL", "value" : "${key_manager_url}" },
       { "name" : "FENCE_LIST", "value" : "${fence_list}" },
       { "name" : "FHIR_URL", "value" : "${fhir_url}" },

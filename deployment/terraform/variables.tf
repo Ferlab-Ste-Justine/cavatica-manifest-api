@@ -44,6 +44,11 @@ variable "keycloak_realm" {
   default = "kidsfirstdrc"
 }
 
+variable "mock_key_manager" {
+  description = "Mock Key Manager (for QA)"
+  default = "false"
+}
+
 variable "key_manager_url" {
   description = "Key Manager URL"
 }

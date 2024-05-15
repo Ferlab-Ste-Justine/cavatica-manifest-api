@@ -50,6 +50,7 @@ Then
 
 ```
 docker run -p 1313:1313 \
+-e ENV=qa \
 -e PORT=1313 \
 -e KEYCLOAK_URL={KEYCLOAK_URL} \
 -e KEYCLOAK_REALM={KEYCLOAK_REALM} \

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+import { ENV_PRD, ENV_QA } from '../utils/constants';
 import { NoAclError, NoOccurrenceError } from './errors';
 import { FhirError, KeycloakFhirError } from './fhir/errors';
 import { fetchFhirUri } from './fhir/fhirClient';
@@ -17,6 +19,7 @@ jest.mock('./fhir/fhirKeycloakClient');
 jest.mock('./fhir/fhirClient');
 jest.mock('./keyManager/cavatica/cavaticaProxyClient');
 jest.mock('./S3/manifest');
+jest.mock('../config/env');
 
 describe('Variant Workbench Service', () => {
     describe('Load occurrences to Cavatica', () => {
@@ -92,6 +95,9 @@ describe('Variant Workbench Service', () => {
             (fetchFhirToken as jest.Mock).mockReset();
             (fetchFhirUri as jest.Mock).mockReset();
             (startBulkImport as jest.Mock).mockReset();
+
+            const env = require('../config/env');
+            env.mockKeyManager = false;
         });
 
         it('should return an error if it fails to get user ACLs', async () => {
@@ -419,6 +425,46 @@ describe('Variant Workbench Service', () => {
             expect((getUserACLs as jest.Mock).mock.calls.length).toEqual(1);
             expect((fetchFhirToken as jest.Mock).mock.calls.length).toEqual(1);
             expect((fetchFhirUri as jest.Mock).mock.calls.length).toEqual(2);
+            expect((generateManifest as jest.Mock).mock.calls.length).toEqual(1);
+        });
+
+        it('should call key manager even if mock is active when env is prd', async () => {
+            const env = require('../config/env');
+            env.mockKeyManager = true;
+            env.env = ENV_PRD;
+
+            (getUserACLs as jest.Mock).mockResolvedValue(acls);
+            (fetchFhirToken as jest.Mock).mockResolvedValue(fhirAccessToken);
+            (fetchFhirUri as jest.Mock).mockResolvedValue([fhirEntry1, fhirEntry2, fhirEntry3]);
+            (generateManifest as jest.Mock).mockResolvedValue(preSignedUrl);
+
+            const result = await generateManifestPreSignedUrl(keycloak_id, accessToken);
+
+            expect(result).toEqual(preSignedUrl);
+
+            expect((getUserACLs as jest.Mock).mock.calls.length).toEqual(1);
+            expect((fetchFhirToken as jest.Mock).mock.calls.length).toEqual(1);
+            expect((fetchFhirUri as jest.Mock).mock.calls.length).toEqual(2);
+            expect((generateManifest as jest.Mock).mock.calls.length).toEqual(1);
+        });
+
+        it('should not call key manager if mock is active and env is qa', async () => {
+            const env = require('../config/env');
+            env.mockKeyManager = true;
+            env.env = ENV_QA;
+
+            (getUserACLs as jest.Mock).mockResolvedValue(acls);
+            (fetchFhirToken as jest.Mock).mockResolvedValue(fhirAccessToken);
+            (fetchFhirUri as jest.Mock).mockResolvedValue([fhirEntry1, fhirEntry2, fhirEntry3]);
+            (generateManifest as jest.Mock).mockResolvedValue(preSignedUrl);
+
+            const result = await generateManifestPreSignedUrl(keycloak_id, accessToken);
+
+            expect(result).toEqual(preSignedUrl);
+
+            expect((getUserACLs as jest.Mock).mock.calls.length).toEqual(0);
+            expect((fetchFhirToken as jest.Mock).mock.calls.length).toEqual(1);
+            expect((fetchFhirUri as jest.Mock).mock.calls.length).toEqual(1);
             expect((generateManifest as jest.Mock).mock.calls.length).toEqual(1);
         });
     });

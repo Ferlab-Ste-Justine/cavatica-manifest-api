@@ -1,6 +1,7 @@
 environment="qa"
 keycloak_url="https://keycloak-qa.kf-strides.org"
 keycloak_realm="kidsfirstdrc"
+mock_key_manager="true"
 key_manager_url="https://kf-key-manager-next-qa.kf-strides.org"
 fence_list="gen3|dcf"
 fhir_url="https://fhir-qa.kidsfirstdrc.org"
