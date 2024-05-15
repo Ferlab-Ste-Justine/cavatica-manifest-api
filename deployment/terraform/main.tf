@@ -58,5 +58,5 @@ module "app" {
   host_header_list        = ["${var.project}-${var.environment}.${var.domain}"]
   health_check_path       = "/status"
   create_default_iam_role = 0
-  iam_role                = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/kf-cavatica-vwb-api-${var.environment}-role""
+  iam_role                = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/kf-cavatica-vwb-api-${var.environment}-role"
 }
