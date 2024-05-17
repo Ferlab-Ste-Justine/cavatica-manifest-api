@@ -1,4 +1,4 @@
-import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import { manifestBucket } from '../../config/env';
@@ -23,15 +23,20 @@ const uploadFile = async (keycloakId: string, fileContent: string): Promise<stri
     const s3Client = S3ClientInstance.getInstance();
     const key = `VWB_${keycloakId}_${Date.now()}.csv`;
 
-    const command = new PutObjectCommand({
+    const putObjectCommand = new PutObjectCommand({
         Bucket: manifestBucket,
         Key: key,
         Body: fileContent,
     });
 
+    const getObjectCommand = new GetObjectCommand({
+        Bucket: manifestBucket,
+        Key: key,
+    });
+
     try {
-        await s3Client.send(command);
-        return getSignedUrl(s3Client, command, { expiresIn: PRE_SIGNED_URL_EXPIRY_SEC });
+        await s3Client.send(putObjectCommand);
+        return getSignedUrl(s3Client, getObjectCommand, { expiresIn: PRE_SIGNED_URL_EXPIRY_SEC });
     } catch (err) {
         throw new S3Error(err);
     }

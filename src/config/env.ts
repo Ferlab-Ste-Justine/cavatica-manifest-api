@@ -9,7 +9,7 @@ export const keycloakURL = process.env.KEYCLOAK_URL;
 export const keycloakRealm = process.env.KEYCLOAK_REALM;
 export const keycloakClient = process.env.KEYCLOAK_CLIENT;
 
-export const mockKeyManager = process.env.MOCK_KEY_MANAGER || false;
+export const mockKeyManager = process.env.MOCK_KEY_MANAGER === 'true' || false;
 export const keyManagerUrl = process.env.KEY_MANAGER_URL;
 export const fenceList: string[] = (process.env.FENCE_LIST || '').split('|');
 
