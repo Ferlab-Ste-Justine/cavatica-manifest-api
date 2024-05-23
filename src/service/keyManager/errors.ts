@@ -10,3 +10,11 @@ export class KeyManagerError extends Error {
         this.details = details;
     }
 }
+
+export class KeyManagerFenceNotConnectedError extends Error {
+    constructor() {
+        super('no_fence_connection');
+        Object.setPrototypeOf(this, KeyManagerFenceNotConnectedError.prototype);
+        this.name = KeyManagerFenceNotConnectedError.name;
+    }
+}

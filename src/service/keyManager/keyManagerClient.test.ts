@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { KeyManagerError } from './errors';
+import { KeyManagerError, KeyManagerFenceNotConnectedError } from './errors';
 import { getUserACLs } from './keyManagerClient';
 
 jest.mock('../../config/env');
@@ -50,7 +50,25 @@ describe('Key Manager Client', () => {
             expect((global.fetch as unknown as jest.Mock).mock.calls.length).toEqual(2);
         });
 
-        it('should throw a KeyManagerError if an error occurs', async () => {
+        it('should throw a KeyManagerFenceNotConnectedError if key manager returns status 401', async () => {
+            const mockResponse = { status: 401 };
+
+            const env = require('../../config/env');
+            env.fenceList = ['gen3'];
+            (global.fetch as unknown as jest.Mock).mockImplementation(() => mockResponse);
+
+            const expectedError = new KeyManagerFenceNotConnectedError();
+
+            try {
+                await getUserACLs(accessToken);
+            } catch (e) {
+                expect(e).toEqual(expectedError);
+            } finally {
+                expect((global.fetch as unknown as jest.Mock).mock.calls.length).toEqual(1);
+            }
+        });
+
+        it('should throw a KeyManagerError if an error (not 500) occurs', async () => {
             const errorMessage = 'OOPS from Key Manager';
             const mockResponse = { status: 400, text: () => errorMessage };
 
@@ -67,6 +85,46 @@ describe('Key Manager Client', () => {
             } finally {
                 expect((global.fetch as unknown as jest.Mock).mock.calls.length).toEqual(1);
             }
+        });
+
+        it('should retry call to Key Manager if it returns a 500', async () => {
+            const errorMessage = 'OOPS from Key Manager';
+            const mockResponse = { status: 500, text: () => errorMessage };
+
+            const env = require('../../config/env');
+            env.fenceList = ['gen3'];
+            (global.fetch as unknown as jest.Mock).mockImplementation(() => mockResponse);
+
+            const expectedError = new KeyManagerError(500, errorMessage);
+
+            try {
+                await getUserACLs(accessToken);
+            } catch (e) {
+                expect(e).toEqual(expectedError);
+            } finally {
+                expect((global.fetch as unknown as jest.Mock).mock.calls.length).toEqual(3);
+            }
+        });
+
+        it('should stop retry call to Key Manager if it finally returns other that 500', async () => {
+            const errorMessage = 'OOPS from Key Manager';
+            const mockErrorResponse = { status: 500, text: () => errorMessage };
+            const mockSuccessResponse = {
+                status: 200,
+                json: () => ({
+                    acl: ['acl1', 'acl2'],
+                }),
+            };
+
+            const env = require('../../config/env');
+            env.fenceList = ['gen3'];
+            (global.fetch as unknown as jest.Mock).mockImplementationOnce(() => mockErrorResponse);
+            (global.fetch as unknown as jest.Mock).mockImplementationOnce(() => mockSuccessResponse);
+
+            const result = await getUserACLs(accessToken);
+
+            expect(result).toEqual(['acl1', 'acl2']);
+            expect((global.fetch as unknown as jest.Mock).mock.calls.length).toEqual(2);
         });
     });
 });
