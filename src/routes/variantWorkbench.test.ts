@@ -121,7 +121,7 @@ describe('Express app', () => {
             expect((generateManifestPreSignedUrl as jest.Mock).mock.calls[0][1]).toEqual(`Bearer ${token}`);
         });
 
-        it('should return 302 with a redirect to cavatica manifest import page if Authorization header is valid', async () => {
+        it('should return 200 with the URL to cavatica manifest import page if Authorization header is valid', async () => {
             const preSignedUrl = 'pre_signed_url';
 
             (generateManifestPreSignedUrl as jest.Mock).mockImplementation(() => preSignedUrl);
@@ -130,8 +130,9 @@ describe('Express app', () => {
             await request(app)
                 .get('/vwb/manifest')
                 .set({ Authorization: `Bearer ${token}` })
-                .expect(302)
-                .expect('Location', 'https://cavatica.sbgenomics.com/import-redirect/drs/csv?URL=pre_signed_url');
+                .expect(200, {
+                    importUrl: 'https://cavatica.sbgenomics.com/import-redirect/drs/csv?URL=pre_signed_url',
+                });
 
             expect((generateManifestPreSignedUrl as jest.Mock).mock.calls.length).toEqual(1);
             expect((generateManifestPreSignedUrl as jest.Mock).mock.calls[0][0]).toEqual('keycloak_id');

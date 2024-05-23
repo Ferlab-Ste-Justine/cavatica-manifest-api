@@ -108,4 +108,34 @@ Returns cavatica bulk import response
 
 - GET `/vwb/manifest`
 
-Returns a redirect to Cavatica DRS Manifest import
+Success: returns 200 with body 
+
+```
+{
+    "importUrl":"https://cavatica.sbgenomics.com/import-redirect/drs/csv?URL=https%3A%2F%2Fkf-strides-vwb-cavatica-import-manifest-prd.s3.us-east-1.amazonaws.com%2FVWB_e6fa48a0-01c6-42c1-8aa1-4f6133275a36_1716494922878.csv%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Content-Sha256%3DUNSIGNED-PAYLOAD%26X-Amz-Credential%3DASIATMD7WGMCXO6DHWP7%252F20240523%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20240523T200844Z%26X-Amz-Expires%3D43200%26X-Amz-Security-Token%3DFwoGZXIvYXdzEBYaDIK32RZBv0QjF00p2SLdARve2trjNQ%252F1CpyDD8XdqLMR4s2HSMF2vU3JnmNEj3KuXVyFlEXuVTkcQykecktze%252BilJV5jzUZDIR50r2Gng82NWkahv2sW6sxnxXAjg%252FlYu852kRGU1cBc8Q5n%252F5MYZpLDaRKlsjhR5TycQjqdeD7huBkiLtvHpZqgTFVDWgSxY8%252BdS7vhkRndse7QsUXqe%252B2E33nGNqZnqplKCv8lDXpK8WmhKL84UjfOUogZIuLS%252FckW6lu2yC2DpikPzESQtT3S6cPa4eBpS3trxVuVZjoKC5%252Bx8iEc8gZ92UrdKLTEvrIGMjMxS%252FMNphGHA56gXEkvTSx1pVvxo9msOVGgxYWtDojtSCTAFzp62z9qBLukdTD1Zm9BbfU%253D%26X-Amz-Signature%3D8d90054ddfd017175624c11030003695ebf4b2c687812fb4c1868158acc139c3%26X-Amz-SignedHeaders%3Dhost%26x-id%3DGetObject"
+}
+```
+
+Error - User is not connected to its fences: returns 400 with body 
+
+```
+{
+    "error": "no_fence_connection" 
+}
+```
+
+Error - User has no ACL: returns 400 with body 
+
+```
+{
+    "error": "no_acl" 
+}
+```
+
+Error - No parquet file match user's ACLs in FHIR: returns 400 with body 
+
+```
+{
+    "error": "no_file_for_acls" 
+}
+```

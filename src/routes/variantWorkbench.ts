@@ -26,7 +26,7 @@ variantWorkbenchRouter.get('/manifest', async (req, res, next) => {
         const keycloakId = req['kauth']?.grant?.access_token?.content?.sub;
         const presignedUrl = await generateManifestPreSignedUrl(keycloakId, accessToken);
         const redirectUrl = `https://cavatica.sbgenomics.com/import-redirect/drs/csv?URL=${encodeURIComponent(presignedUrl)}`;
-        res.redirect(StatusCodes.MOVED_TEMPORARILY, redirectUrl);
+        res.status(StatusCodes.OK).send({ importUrl: redirectUrl });
     } catch (e) {
         next(e);
     }
