@@ -50,11 +50,31 @@ describe('Key Manager Client', () => {
             expect((global.fetch as unknown as jest.Mock).mock.calls.length).toEqual(2);
         });
 
-        it('should throw a KeyManagerFenceNotConnectedError if key manager returns status 401', async () => {
+        it('should not throw a KeyManagerFenceNotConnectedError if user is connected at at least a fence', async () => {
+            const mockResponseError = { status: 401 };
+            const mockResponseSuccess = {
+                status: 200,
+                json: () => ({
+                    acl: ['acl1', 'acl2'],
+                }),
+            };
+
+            const env = require('../../config/env');
+            env.fenceList = ['gen3', 'dcf'];
+            (global.fetch as unknown as jest.Mock).mockImplementationOnce(() => mockResponseError);
+            (global.fetch as unknown as jest.Mock).mockImplementationOnce(() => mockResponseSuccess);
+
+            const result = await getUserACLs(accessToken);
+
+            expect(result).toEqual(['acl1', 'acl2']);
+            expect((global.fetch as unknown as jest.Mock).mock.calls.length).toEqual(2);
+        });
+
+        it('should throw a KeyManagerFenceNotConnectedError if user is connected to none of the fences', async () => {
             const mockResponse = { status: 401 };
 
             const env = require('../../config/env');
-            env.fenceList = ['gen3'];
+            env.fenceList = ['gen3', 'dcf'];
             (global.fetch as unknown as jest.Mock).mockImplementation(() => mockResponse);
 
             const expectedError = new KeyManagerFenceNotConnectedError();
@@ -64,7 +84,7 @@ describe('Key Manager Client', () => {
             } catch (e) {
                 expect(e).toEqual(expectedError);
             } finally {
-                expect((global.fetch as unknown as jest.Mock).mock.calls.length).toEqual(1);
+                expect((global.fetch as unknown as jest.Mock).mock.calls.length).toEqual(2);
             }
         });
 
