@@ -39,3 +39,9 @@ export type FhirEntry = {
     };
     search: { mode: string };
 };
+
+export type SimpleFhirEntry = {
+    id: string;
+    name: string;
+    s3Url: string;
+};

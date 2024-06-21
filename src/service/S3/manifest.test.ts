@@ -1,6 +1,6 @@
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-import { BulkImportItem } from '../keyManager/cavatica/types';
+import { SimpleFhirEntry } from '../fhir/types';
 import { S3Error } from './errors';
 import { generateManifest } from './manifest';
 import S3ClientInstance from './S3ClientInstance';
@@ -12,14 +12,16 @@ describe('Manifest S3 Service', () => {
     describe('Generate Manifest', () => {
         const mockSend = jest.fn();
         const keycloak_id = 'keycloak_id';
-        const items: BulkImportItem[] = [
+        const items: SimpleFhirEntry[] = [
             {
-                drs_uri: 'drs_uri_1',
+                id: 'drs_uri_1',
                 name: 'path_to_file_1',
+                s3Url: 's3://path_to_file_1',
             },
             {
-                drs_uri: 'drs_uri_2',
+                id: 'drs_uri_2',
                 name: 'path_to_file_2',
+                s3Url: 's3://path_to_file_2',
             },
         ];
 

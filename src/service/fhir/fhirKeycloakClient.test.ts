@@ -1,5 +1,5 @@
 import { KeycloakFhirError } from './errors';
-import { fetchFhirToken } from './fhirKeycloakClient';
+import { fetchFhirAccessToken, fetchFhirRPTToken } from './fhirKeycloakClient';
 
 describe('FHIR Keycloak Client', () => {
     global.fetch = jest.fn(() =>
@@ -23,7 +23,23 @@ describe('FHIR Keycloak Client', () => {
             };
             (global.fetch as unknown as jest.Mock).mockImplementation(() => mockResponse);
 
-            const result = await fetchFhirToken();
+            const result = await fetchFhirAccessToken();
+
+            expect(result).toEqual(expectedResult);
+            expect((global.fetch as unknown as jest.Mock).mock.calls.length).toEqual(1);
+        });
+
+        it('should return the rpt token returned by FHIR keycloak', async () => {
+            const expectedResult = 'fhir_rpt_token';
+            const mockResponse = {
+                status: 200,
+                json: () => ({
+                    access_token: expectedResult,
+                }),
+            };
+            (global.fetch as unknown as jest.Mock).mockImplementation(() => mockResponse);
+
+            const result = await fetchFhirRPTToken('fhir_access_token');
 
             expect(result).toEqual(expectedResult);
             expect((global.fetch as unknown as jest.Mock).mock.calls.length).toEqual(1);
@@ -38,7 +54,7 @@ describe('FHIR Keycloak Client', () => {
             const expectedError = new KeycloakFhirError(400, errorMessage);
 
             try {
-                await fetchFhirToken();
+                await fetchFhirAccessToken();
             } catch (e) {
                 expect(e).toEqual(expectedError);
             } finally {

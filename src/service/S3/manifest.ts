@@ -1,18 +1,18 @@
-import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { GetObjectCommand, ListBucketsCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-import { manifestBucket } from '../../config/env';
-import { BulkImportItem } from '../keyManager/cavatica/types';
+import { drsUrl, manifestBucket } from '../../config/env';
+import { SimpleFhirEntry } from '../fhir/types';
 import { S3Error } from './errors';
 import S3ClientInstance from './S3ClientInstance';
 
 const PRE_SIGNED_URL_EXPIRY_SEC = 60 * 60 * 12;
 
-export const generateManifest = async (keycloakId: string, items: BulkImportItem[]): Promise<string> => {
+export const generateManifest = async (keycloakId: string, items: SimpleFhirEntry[]): Promise<string> => {
     let tsvContent = `drs_uri,name\n`;
 
     for (const item of items) {
-        const values = [item.drs_uri, item.name];
+        const values = [`${drsUrl}/${item.id}`, item.name];
         tsvContent += `${values.join(',')}\n`;
     }
 
@@ -25,13 +25,13 @@ const uploadFile = async (keycloakId: string, fileContent: string): Promise<stri
 
     const putObjectCommand = new PutObjectCommand({
         Bucket: manifestBucket,
-        Key: key,
+        Key: `${manifestBucket}/${key}`,
         Body: fileContent,
     });
 
     const getObjectCommand = new GetObjectCommand({
         Bucket: manifestBucket,
-        Key: key,
+        Key: `${manifestBucket}/${key}`,
     });
 
     try {

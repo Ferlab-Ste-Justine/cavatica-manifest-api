@@ -26,7 +26,7 @@ const buildApp = (keycloak: Keycloak): Express => {
         }),
     );
 
-    app.use('/vwb', keycloak.protect(), variantWorkbench);
+    app.use('/manifest', keycloak.protect(), variantWorkbench);
     app.use('/', publicRouter);
 
     app.use(globalErrorLogger, globalErrorHandler);

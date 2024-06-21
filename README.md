@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/kids_first_logo.svg" alt="Kids First repository logo" width="660px" />
+  <img src="docs/CQDGLogoFull.svg" alt="CQDG repository logo" width="660px" />
 </p>
 
-# Cavatica VWB API
+# Cavatica Manifest API
 
 ## Requirements
 
@@ -43,7 +43,7 @@ npm run test:coverage
 ### Build and run the Docker image
 
 ```
-docker build -t kf-cavatica-vwb-api .
+docker build -t cavatica-manifest-api .
 ```
 
 Then
@@ -63,7 +63,7 @@ docker run -p 1313:1313 \
 -e FHIR_KEYCLOAK_CLIENT_ID={FHIR_KEYCLOAK_CLIENT_ID} \
 -e FHIR_KEYCLOAK_CLIENT_SECRET={FHIR_KEYCLOAK_CLIENT_SECRET} \
 -e MANIFEST_BUCKET={MANIFEST_BUCKET} \
--it -d kf-cavatica-vwb-api
+-it -d cavatica-manifest-api
 ```
 
 Do not forget to fill env values
@@ -78,7 +78,7 @@ Returns
 
 ```
 {
-    "app": "kf-cavatica-vwb-api",
+    "app": "cavatica-manifest-api",
     "version": "0.0.1",
     "keycloak_url": {KEYCLOAK_URL},
     "fhir_url": {FHIR_URL}
@@ -116,26 +116,45 @@ Success: returns 200 with body
 }
 ```
 
-Error - User is not connected to its fences: returns 400 with body 
+## This is a WIP... 
 
-```
-{
-    "error": "no_fence_connection" 
-}
-```
+[//]: # (Error - User is not connected to its fences: returns 400 with body )
 
-Error - User has no ACL: returns 400 with body 
+[//]: # ()
+[//]: # (```)
 
-```
-{
-    "error": "no_acl" 
-}
-```
+[//]: # ({)
 
-Error - No parquet file match user's ACLs in FHIR: returns 400 with body 
+[//]: # (    "error": "no_fence_connection" )
 
-```
-{
-    "error": "no_file_for_acls" 
-}
-```
+[//]: # (})
+
+[//]: # (```)
+
+[//]: # ()
+[//]: # (Error - User has no ACL: returns 400 with body )
+
+[//]: # ()
+[//]: # (```)
+
+[//]: # ({)
+
+[//]: # (    "error": "no_acl" )
+
+[//]: # (})
+
+[//]: # (```)
+
+[//]: # ()
+[//]: # (Error - No parquet file match user's ACLs in FHIR: returns 400 with body )
+
+[//]: # ()
+[//]: # (```)
+
+[//]: # ({)
+
+[//]: # (    "error": "no_file_for_acls" )
+
+[//]: # (})
+
+[//]: # (```)

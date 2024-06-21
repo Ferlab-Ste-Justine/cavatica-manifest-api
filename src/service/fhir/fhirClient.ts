@@ -2,11 +2,11 @@ import { fhirUrl } from '../../config/env';
 import { FhirError } from './errors';
 import { FhirEntry, FhirLink, FhirOutput } from './types';
 
-export const fetchFhirUri = async (uri: string, accessToken: string, result: FhirEntry[]): Promise<FhirEntry[]> => {
+export const fetchFhirUri = async (uri: string, token: string, result: FhirEntry[]): Promise<FhirEntry[]> => {
     const response = await fetch(encodeURI(uri), {
         method: 'get',
         headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${token}`,
         },
     });
 
@@ -18,12 +18,15 @@ export const fetchFhirUri = async (uri: string, accessToken: string, result: Fhi
         if (!nextLink) {
             return newResult;
         } else {
-            return fetchFhirUri(nextLink.url, accessToken, newResult);
+            return fetchFhirUri(nextLink.url, token, newResult);
         }
     }
 
     throw new FhirError(response.status, await response.text());
 };
 
-export const getDocumentSearchUri = (acl: string): string =>
-    `${fhirUrl}/DocumentReference?security-label:text=${acl}&format:text=parquet`;
+export const getRelatedDocumentsUri = (ids: string[]): string =>
+    `${fhirUrl}/fhir/DocumentReference?relatesto=${ids.join(",")}`;
+
+export const getDocumentsByIdUri = (ids: string[]): string =>
+    `${fhirUrl}/fhir/DocumentReference?_id=${ids.join(",")}`;
