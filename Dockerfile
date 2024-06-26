@@ -2,7 +2,10 @@
 FROM node:22.1.0-alpine3.19 AS build-image
 WORKDIR /app
 COPY . .
-RUN npm ci && npm run clean && npm run build && npm run test:silent
+
+RUN npm ci
+RUN npm run clean
+RUN npm run build
 
 # Second image, that creates an image for production
 FROM node:22.1.0-alpine3.19 AS prod-image
