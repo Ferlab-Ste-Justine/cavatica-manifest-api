@@ -20,7 +20,7 @@ const variantWorkbenchRouter = Router();
 //     }
 // });
 
-variantWorkbenchRouter.get('/', async (req, res, next) => {
+variantWorkbenchRouter.post('/', async (req, res, next) => {
     try {
         const accessToken = req.headers.authorization;
         const keycloakId = req['kauth']?.grant?.access_token?.content?.sub;
