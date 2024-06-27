@@ -14,7 +14,7 @@ export const fetchFhirUri = async (uri: string, token: string, result: FhirEntry
         const body: FhirOutput = await response.json();
         const nextLink: FhirLink | undefined = body.link.find((l) => l.relation === 'next');
 
-        const newResult = result.concat(body.entry);
+        const newResult = result.concat(body.entry || []);
         if (!nextLink) {
             return newResult;
         } else {
