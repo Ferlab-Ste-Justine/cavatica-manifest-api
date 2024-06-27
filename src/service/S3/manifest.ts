@@ -21,17 +21,17 @@ export const generateManifest = async (keycloakId: string, items: SimpleFhirEntr
 
 const uploadFile = async (keycloakId: string, fileContent: string): Promise<string> => {
     const s3Client = S3ClientInstance.getInstance();
-    const key = `VWB_${keycloakId}_${Date.now()}.csv`;
+    const key = `Cavatica_${keycloakId}_${Date.now()}.csv`;
 
     const putObjectCommand = new PutObjectCommand({
         Bucket: manifestBucket,
-        Key: `${manifestBucket}/${key}`,
+        Key: key,
         Body: fileContent,
     });
 
     const getObjectCommand = new GetObjectCommand({
         Bucket: manifestBucket,
-        Key: `${manifestBucket}/${key}`,
+        Key: key,
     });
 
     try {
