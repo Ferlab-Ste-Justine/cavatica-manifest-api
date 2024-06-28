@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { generateManifestPreSignedUrl } from '../service/variantWorkbench';
+import { generateManifestPreSignedUrl } from '../service/manifestWorkbench';
 
-const variantWorkbenchRouter = Router();
+const manifestWorkbenchRouter = Router();
 
 // type PostVwbBody = {
 //     project: string;
@@ -20,7 +20,7 @@ const variantWorkbenchRouter = Router();
 //     }
 // });
 
-variantWorkbenchRouter.post('/', async (req, res, next) => {
+manifestWorkbenchRouter.post('/', async (req, res, next) => {
     try {
         const accessToken = req.headers.authorization;
         const keycloakId = req['kauth']?.grant?.access_token?.content?.sub;
@@ -35,4 +35,4 @@ variantWorkbenchRouter.post('/', async (req, res, next) => {
     }
 });
 
-export default variantWorkbenchRouter;
+export default manifestWorkbenchRouter;

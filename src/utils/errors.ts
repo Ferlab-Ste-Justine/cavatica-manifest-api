@@ -1,16 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import { getReasonPhrase, StatusCodes } from 'http-status-codes';
 
-import { NoAclError, NoOccurrenceError } from '../service/errors';
-// import { KeyManagerFenceNotConnectedError } from '../service/keyManager/errors';
+import { FerloadError } from '../service/ferload/errors';
 
 export const globalErrorHandler = (err: unknown, _req: Request, res: Response, _next: NextFunction): void => {
-    if (
-        err instanceof NoAclError ||
-        err instanceof NoOccurrenceError
-        // err instanceof KeyManagerFenceNotConnectedError
-    ) {
-        res.status(StatusCodes.BAD_REQUEST).json({
+    if (err instanceof FerloadError) {
+        res.status(err.status || StatusCodes.BAD_REQUEST).json({
             error: err.message,
         });
     } else if (err instanceof Error) {

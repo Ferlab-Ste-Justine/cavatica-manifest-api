@@ -4,7 +4,7 @@ import { sanitize, xss } from 'express-xss-sanitizer';
 import { Keycloak } from 'keycloak-connect';
 
 import publicRouter from './routes/public';
-import variantWorkbench from './routes/variantWorkbench';
+import manifestWorkbench from './routes/manifestWorkbench';
 import { globalErrorHandler, globalErrorLogger } from './utils/errors';
 
 const buildApp = (keycloak: Keycloak): Express => {
@@ -26,7 +26,7 @@ const buildApp = (keycloak: Keycloak): Express => {
         }),
     );
 
-    app.use('/manifest', keycloak.protect(), variantWorkbench);
+    app.use('/manifest', keycloak.protect(), manifestWorkbench);
     app.use('/', publicRouter);
 
     app.use(globalErrorLogger, globalErrorHandler);

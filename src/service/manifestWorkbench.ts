@@ -1,4 +1,3 @@
-import { NoOccurrenceError } from './errors';
 import { fetchUserPermittedFiles } from './ferload/ferloadClient';
 import { fetchFhirUri, getDocumentsByIdUri, getRelatedDocumentsUri } from './fhir/fhirClient';
 import { fetchFhirAccessToken, fetchFhirRPTToken } from './fhir/fhirKeycloakClient';
@@ -30,8 +29,6 @@ export const generateManifestPreSignedUrl = async (
     );
 
     const allPermittedDocs = docsWithIndex.filter((entry) => permittedIdList.includes(entry.id));
-
-    if (allPermittedDocs.length === 0) throw new NoOccurrenceError();
 
     return await generateManifest(keycloakId, allPermittedDocs);
 };
