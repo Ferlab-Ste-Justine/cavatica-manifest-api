@@ -5,21 +5,6 @@ import { generateManifestPreSignedUrl } from '../service/manifestWorkbench';
 
 const manifestWorkbenchRouter = Router();
 
-// type PostVwbBody = {
-//     project: string;
-// };
-//
-// variantWorkbenchRouter.post('/', async (req, res, next) => {
-//     try {
-//         const accessToken = req.headers.authorization;
-//         const body: PostVwbBody = req.body;
-//         const cavaticaResult = await loadOccurrencesToCavatica(accessToken, body.project);
-//         res.status(StatusCodes.OK).send(cavaticaResult);
-//     } catch (e) {
-//         next(e);
-//     }
-// });
-
 manifestWorkbenchRouter.post('/', async (req, res, next) => {
     try {
         const accessToken = req.headers.authorization;
@@ -27,9 +12,8 @@ manifestWorkbenchRouter.post('/', async (req, res, next) => {
 
         const inputIdList = req?.body?.file_ids || [];
         const presignedUrl = await generateManifestPreSignedUrl(inputIdList, accessToken, keycloakId);
-        // const redirectUrl = `https://cavatica.sbgenomics.com/import-redirect/drs/csv?URL=${encodeURIComponent(presignedUrl)}`;
-        // res.status(StatusCodes.OK).send({ importUrl: redirectUrl });
-        res.status(StatusCodes.OK).send({ importUrl: presignedUrl }); //FIXME
+        const redirectUrl = `https://cavatica.sbgenomics.com/import-redirect/drs/csv?URL=${encodeURIComponent(presignedUrl)}`;
+        res.status(StatusCodes.OK).send({ importUrl: redirectUrl });
     } catch (e) {
         next(e);
     }
