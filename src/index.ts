@@ -1,7 +1,7 @@
 import Keycloak from 'keycloak-connect';
 
 import buildApp from './app';
-import { mockKeyManager, port } from './config/env';
+import { port } from './config/env';
 import keycloakConfig from './config/keycloak';
 
 process.on('uncaughtException', (err) => {
@@ -35,5 +35,4 @@ k.grantManager.validateGrant = (grant) =>
 app.listen(port, async () => {
     // eslint-disable-next-line no-console
     console.log(`⚡️ Listening on port ${port} ⚡️`);
-    if (mockKeyManager) console.warn(`🚨🚨🚨 Key-manager is mocked ! 🚨🚨🚨`);
 });
